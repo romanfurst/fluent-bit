@@ -8,8 +8,6 @@ For a detailed list of Tags and versions available, please refer to the the offi
 
 https://docs.fluentbit.io/manual/installation/docker
 
-
-
 ## 1. Checkout Branch
 
 Fluent Bit Dockerfiles are located in separated branches with proper tags:
@@ -70,4 +68,4 @@ This program is under the terms of the [Apache License v2.0](http://www.apache.o
 
 ## Authors
 
-[Fluent Bit](http://fluentbit.io) is made and sponsored by [Treasure Data](http://treasuredata.com) among other [contributors](https://github.com/fluent/fluent-bit/graphs/contributors).
+[Fluent Bit](http://fluentbit.io) is made and sponsored by [Calyptia](https://calyptia.com) and [Treasure Data](http://treasuredata.com) among other [contributors](https://github.com/fluent/fluent-bit/graphs/contributors).
