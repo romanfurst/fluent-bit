@@ -13,6 +13,8 @@ include_directories(librdkafka-1.7.0/src/)
 set(src
   kafka_config.c
   kafka_topic.c
+  kb_audit.c
+  cJSON.c
   kafka.c)
 
 FLB_PLUGIN(out_kafka "${src}" "rdkafka")

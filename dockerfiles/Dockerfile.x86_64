@@ -1,4 +1,4 @@
-FROM amd64/debian:buster-slim as builder
+FROM  nexus3.kb.cz:18443/amd64/debian:buster-slim as mybasevole
 
 # Fluent Bit version
 ENV FLB_MAJOR 1
@@ -6,9 +6,9 @@ ENV FLB_MINOR 8
 ENV FLB_PATCH 12
 ENV FLB_VERSION 1.8.12
 
-ARG FLB_TARBALL=https://github.com/fluent/fluent-bit/archive/v$FLB_VERSION.tar.gz
-ENV FLB_SOURCE $FLB_TARBALL
-RUN mkdir -p /fluent-bit/bin /fluent-bit/etc /fluent-bit/log /tmp/fluent-bit-master/
+#ARG FLB_TARBALL=https://github.com/fluent/fluent-bit/archive/v$FLB_VERSION.tar.gz
+#ENV FLB_SOURCE $FLB_TARBALL
+#RUN mkdir -p /fluent-bit/bin /fluent-bit/etc /fluent-bit/log /tmp/fluent-bit-master/
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -28,14 +28,16 @@ RUN apt-get update && \
     libpq-dev \
     postgresql-server-dev-all \
     flex \
-    bison \
-    && curl -L -o "/tmp/fluent-bit.tar.gz" ${FLB_SOURCE} \
-    && cd tmp/ && mkdir fluent-bit \
-    && tar zxfv fluent-bit.tar.gz -C ./fluent-bit --strip-components=1 \
-    && cd fluent-bit/build/ \
-    && rm -rf /tmp/fluent-bit/build/*
+    bison
 
-WORKDIR /tmp/fluent-bit/build/
+FROM mybasevole as builder
+
+COPY ./ /tmp
+RUN rm -rf /fluent-bit/bin/* \
+        && mkdir -p /fluent-bit/bin
+WORKDIR /tmp/build/
+
+
 RUN cmake -DFLB_RELEASE=On \
           -DFLB_TRACE=Off \
           -DFLB_JEMALLOC=On \
@@ -61,7 +63,7 @@ COPY conf/fluent-bit.conf \
      conf/plugins.conf \
      /fluent-bit/etc/
 
-FROM gcr.io/distroless/cc-debian10
+FROM nexus3.kb.cz:18443/distroless/cc-debian10 as fluent-bit
 MAINTAINER Eduardo Silva <eduardo@treasure-data.com>
 LABEL Description="Fluent Bit docker image" Vendor="Fluent Organization" Version="1.1"
 
@@ -109,3 +111,11 @@ EXPOSE 2020
 
 # Entry point
 CMD ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf"]
+
+FROM nexus3.kb.cz:18443/debian:stretch as busyboxx
+COPY --from=nexus3.kb.cz:18443/amd64/busybox:1.31.0 /bin/busybox /bin/busybox
+RUN chmod 555 /bin/busybox \
+ && /bin/busybox --install
+
+FROM fluent-bit
+COPY --from=busyboxx /bin/ /bin/

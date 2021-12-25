@@ -25,6 +25,7 @@
 
 #include "kafka_config.h"
 #include "kafka_topic.h"
+#include "kb_audit.h"
 
 void cb_kafka_msg(rd_kafka_t *rk, const rd_kafka_message_t *rkmessage,
                   void *opaque)
@@ -356,6 +357,18 @@ int produce_message(struct flb_time *tm, msgpack_object *map,
 #endif
         return FLB_ERROR;
     }
+    // todo tady hmac ? checkout zda jde o audit
+    //flb_plg_info(ctx->ins, "%s", rd_kafka_topic_name(topic->tp));
+    const char *extension = rd_kafka_topic_name(topic->tp) + strlen(rd_kafka_topic_name(topic->tp)) - 8; //-audit
+    //flb_plg_info(ctx->ins, "%s",extension);
+    //flb_plg_info(ctx->ins, "%s",extension);
+    if(!strcmp(extension, "audit-in")) {
+        //flb_plg_info(ctx->ins, "audit");
+        //flb_plg_info(ctx->ins, "%s",out_buf);
+        //flb_plg_info(ctx->ins, "%s",message_key);
+        kb_audit_sign(ctx,out_buf);
+    }
+
 
  retry:
     /*
