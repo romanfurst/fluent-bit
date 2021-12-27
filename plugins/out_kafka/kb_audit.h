@@ -11,6 +11,6 @@
 #include "kafka_config.h"
 #include <fluent-bit/flb_output_plugin.h>
 
-void kb_audit_sign(struct flb_kafka *ctx, char *jsonMessage);
+void kb_audit_sign(struct flb_kafka *ctx, char **jsonMessage);
 
 #endif

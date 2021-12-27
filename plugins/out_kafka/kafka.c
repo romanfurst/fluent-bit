@@ -366,7 +366,15 @@ int produce_message(struct flb_time *tm, msgpack_object *map,
         //flb_plg_info(ctx->ins, "audit");
         //flb_plg_info(ctx->ins, "%s",out_buf);
         //flb_plg_info(ctx->ins, "%s",message_key);
-        kb_audit_sign(ctx,out_buf);
+        //flb_plg_info(ctx->ins, "---------before");
+        //flb_plg_info(ctx->ins, "%s", out_buf);
+        kb_audit_sign(ctx,&out_buf);
+        //flb_plg_info(ctx->ins, "size before %d",out_size);
+        out_size = flb_sds_len(out_buf);
+        out_size = (size_t) strlen(out_buf);
+        //flb_plg_info(ctx->ins, "size after%d",out_size);
+        //flb_plg_info(ctx->ins, "---------after");
+        //flb_plg_info(ctx->ins, "%s", out_buf);
     }
 
 

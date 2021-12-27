@@ -1,10 +1,10 @@
 #include "kb_audit.h"
 #include <string.h>
 
-void kb_audit_sign(struct flb_kafka *ctx, char *jsonMessage) {
-    flb_plg_info(ctx->ins, "---------before");
-    flb_plg_info(ctx->ins, "%s", jsonMessage);
-    cJSON *input = cJSON_Parse(jsonMessage);
+void kb_audit_sign(struct flb_kafka *ctx, char **jsonMessage) {
+    //flb_plg_info(ctx->ins, "---------before");
+    //flb_plg_info(ctx->ins, "%s", *jsonMessage);
+    cJSON *input = cJSON_Parse(*jsonMessage);
 
     /*cJSON *meta_object = get_object_item(input, "@meta", 1);
     if (meta_object) {
@@ -38,11 +38,11 @@ void kb_audit_sign(struct flb_kafka *ctx, char *jsonMessage) {
     cJSON_AddStringToObject(elem, "id", "blabla");
 
 
-    jsonMessage = cJSON_PrintUnformatted(input);
+    *jsonMessage = cJSON_PrintUnformatted(input);
 
 
     //flb_plg_info(ctx->ins, "---------after");
-    //flb_plg_info(ctx->ins, "%s", jsonMessage);
+    //flb_plg_info(ctx->ins, "%s", *jsonMessage);
 
     cJSON_Delete(input);
 
