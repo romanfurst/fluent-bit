@@ -358,23 +358,12 @@ int produce_message(struct flb_time *tm, msgpack_object *map,
         return FLB_ERROR;
     }
     // todo tady hmac ? checkout zda jde o audit
-    //flb_plg_info(ctx->ins, "%s", rd_kafka_topic_name(topic->tp));
     const char *extension = rd_kafka_topic_name(topic->tp) + strlen(rd_kafka_topic_name(topic->tp)) - 8; //-audit
-    //flb_plg_info(ctx->ins, "%s",extension);
-    //flb_plg_info(ctx->ins, "%s",extension);
     if(!strcmp(extension, "audit-in")) {
-        //flb_plg_info(ctx->ins, "audit");
-        //flb_plg_info(ctx->ins, "%s",out_buf);
-        //flb_plg_info(ctx->ins, "%s",message_key);
-        //flb_plg_info(ctx->ins, "---------before");
-        //flb_plg_info(ctx->ins, "%s", out_buf);
         kb_audit_sign(ctx,&out_buf);
-        //flb_plg_info(ctx->ins, "size before %d",out_size);
         out_size = flb_sds_len(out_buf);
         out_size = (size_t) strlen(out_buf);
-        //flb_plg_info(ctx->ins, "size after%d",out_size);
-        //flb_plg_info(ctx->ins, "---------after");
-        //flb_plg_info(ctx->ins, "%s", out_buf);
+        flb_plg_debug(ctx->ins, "%s", out_buf);
     }
 
 
