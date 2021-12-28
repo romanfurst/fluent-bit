@@ -8,6 +8,9 @@
 #include <limits.h>
 #include <float.h>
 
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
+
 #include "kafka_config.h"
 #include <fluent-bit/flb_output_plugin.h>
 

@@ -15,6 +15,7 @@ set(src
   kafka_topic.c
   kb_audit.c
   cJSON.c
+  base64.c
   kafka.c)
 
 FLB_PLUGIN(out_kafka "${src}" "rdkafka")

@@ -1,29 +1,10 @@
 #include "kb_audit.h"
+#include "base64.h"
 #include <string.h>
 
 void kb_audit_sign(struct flb_kafka *ctx, char **jsonMessage) {
-    //flb_plg_info(ctx->ins, "---------before");
-    //flb_plg_info(ctx->ins, "%s", *jsonMessage);
     cJSON *input = cJSON_Parse(*jsonMessage);
 
-    /*cJSON *meta_object = get_object_item(input, "@meta", 1);
-    if (meta_object) {
-        flb_plg_info(ctx->ins, "@meta found");
-        //cJSON_AddStringToObject
-    }else {
-        flb_plg_info(ctx->ins, "@meta field not found in audit log. Hmac signing skipped");
-    }*/
-
-    /*cJSON *elem;
-    for (elem = input->child; elem != NULL; elem = elem->next) {
-        flb_plg_info(ctx->ins, "%s", elem->string);
-        //todo use get_object_item
-        if (cJSON_IsObject(elem) && elem->string && !strcmp(elem->string, "@meta")) {
-            flb_plg_info(ctx->ins, "@meta found");
-
-
-        }
-    }*/
     cJSON *elem = input->child;
     while (elem != NULL && elem->string != NULL && strcmp("@meta", elem->string))
     {
@@ -33,27 +14,37 @@ void kb_audit_sign(struct flb_kafka *ctx, char **jsonMessage) {
         flb_plg_info(ctx->ins, "@meta field not found in audit log. Hmac signing skipped");
         return;
     }
-    flb_plg_info(ctx->ins, "@meta found");
-    //cJSON_AddStringToObject(cJSON * const object, const char * const name, const char * const string);
-    cJSON_AddStringToObject(elem, "id", "blabla");
+    unsigned char *result = NULL;
+    unsigned int result_len = -1;
 
+    //todo tohle se musi odnekud vzit dynamicky
+    unsigned char *key = "sekret";
+
+    result = HMAC(EVP_sha256(), key, strlen(key), *jsonMessage, strlen(*jsonMessage), result, &result_len);
+    if (result) {
+        unsigned char hex_str[65];
+        to_hex_string(result, hex_str);
+        flb_plg_info(ctx->ins, "hmac %s", hex_str);
+
+        unsigned int encode_len = Base64encode_len(64);
+        flb_plg_info(ctx->ins, "encode_len %d", encode_len);
+        unsigned char encoded_result[encode_len];
+        Base64encode(encoded_result, hex_str, 64);
+        flb_plg_info(ctx->ins, "encoded_result %s", encoded_result);
+
+        cJSON_AddStringToObject(elem, "id", encoded_result);
+    } else {
+        flb_plg_warn(ctx->ins, "Hmac cannot be computed. ID @meta filed not set");
+    }
 
     *jsonMessage = cJSON_PrintUnformatted(input);
-
-
-    //flb_plg_info(ctx->ins, "---------after");
-    //flb_plg_info(ctx->ins, "%s", *jsonMessage);
-
     cJSON_Delete(input);
-
 }
 
-/*
-static void simplifyAndPrint(const char *json) {
-    cJSON *input = cJSON_Parse(json);
-    cJSON *output = cJSON_CreateObject();
-    simplify(input->child, output);
-    printf("%s\n", cJSON_PrintUnformatted(output));
-    cJSON_Delete(input);
-    cJSON_Delete(output);
-}*/
+void to_hex_string(unsigned char* input, unsigned  char output[65])
+{
+    for (unsigned int i = 0; i < 32; ++i) {
+        sprintf(output + (i * 2), "%02x", (unsigned char)input[i]);
+    }
+    output[64] = 0;
+}
