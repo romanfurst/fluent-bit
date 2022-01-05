@@ -24,7 +24,7 @@ void kb_audit_sign(struct flb_kafka *ctx, char **jsonMessage) {
     if (result) {
         unsigned char hex_str[65];
         to_hex_string(result, hex_str);
-        flb_plg_info(ctx->ins, "hmac %s", hex_str);
+        //flb_plg_info(ctx->ins, "hmac %s", hex_str);
 
         unsigned int encode_len = Base64encode_len(64);
         unsigned char encoded_result[encode_len];
